@@ -1,37 +1,80 @@
 export class RotatingShape {
-  shape;
-  constructor(shape) {
-    this.shape = shape.split("\n").map((line) => line.trim());
+  nrOfOrientations;
+  orientations;
+  orientation;
+
+  constructor(shape, nrOfOrientations = 4, orientation = 0, orientations) {
+    this.nrOfOrientations = nrOfOrientations;
+    this.orientation = orientation;
+    this.orientations =
+      orientations ||
+      this.drawOrientations(this.parseShape(shape), nrOfOrientations);
+  }
+
+  parseShape(shape) {
+    return shape
+      .split("\n")
+      .map((line) => line.trim())
+      .join("\n")
+      .concat("\n");
+  }
+
+  rotateShape(shape) {
+    const arr = this.shapeToArray(shape);
+    let newShape = "";
+    for (let y = 0; y < arr.length; y++) {
+      for (let x = arr.length - 1; x >= 0; x--) {
+        const element = arr[x][y];
+        newShape += element;
+      }
+      newShape += "\n";
+    }
+    return newShape;
+  }
+
+  drawOrientations(shape, nrOfOrientations) {
+    const orientations = [];
+    orientations[0] = shape;
+    for (let i = 1; i < nrOfOrientations; i++) {
+      orientations[i] = this.rotateShape(orientations[i - 1]);
+    }
+
+    return orientations;
+  }
+
+  arrayToShape(arr) {
+    return arr.join("\n");
+  }
+
+  shapeToArray(str) {
+    return str.split("\n").filter(Boolean);
   }
 
   rotateRight() {
-    let newShape = "";
+    const orientation =
+      this.orientation === this.nrOfOrientations - 1 ? 0 : this.orientation + 1;
 
-    for (let y = 0; y < this.shape.length; y++) {
-      for (let x = this.shape.length - 1; x >= 0; x--) {
-        const element = this.shape[x][y];
-        newShape += element;
-      }
-      if (y !== this.shape.length - 1) newShape += "\n";
-    }
-    return new RotatingShape(newShape);
+    return new RotatingShape(
+      this.orientations[orientation],
+      this.nrOfOrientations,
+      orientation,
+      this.orientations
+    );
   }
 
   rotateLeft() {
-    let newShape = "";
+    const orientation =
+      this.orientation === 0 ? this.nrOfOrientations - 1 : this.orientation - 1;
 
-    for (let y = this.shape.length - 1; y >= 0; y--) {
-      for (let x = 0; x < this.shape.length; x++) {
-        const element = this.shape[x][y];
-        newShape += element;
-      }
-      if (y !== 0) newShape += "\n";
-    }
-
-    return new RotatingShape(newShape);
+    return new RotatingShape(
+      this.orientations[orientation],
+      this.nrOfOrientations,
+      orientation,
+      this.orientations
+    );
   }
 
   toString() {
-    return this.shape.join("\n").concat("\n");
+    return this.orientations[this.orientation];
   }
 }
